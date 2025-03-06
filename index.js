@@ -1,58 +1,29 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import {Server} from 'socket.io';
-import http from 'http';
-import authRoutes from './routes/auth';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import { AuthContextProvider } from './context/AuthContest';
+import { BrowserRouter } from 'react-router-dom';
+import { SocketContextProvider } from './context/SocketContext';
 
-dotenv.config();
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    
+      <BrowserRouter>
+        <AuthContextProvider>
+          <SocketContextProvider>
+            
+            <App />
 
-const app = express();
+          </SocketContextProvider>
+        </AuthContextProvider>
+      </BrowserRouter>
+  </React.StrictMode>
+);
 
-
-app.use(express.json());
-app.use(bodyParser.json({limit:"30mb",extended:true}));
-app.use(cors());
-
-app.use('/auth',authRoutes)
-
-const server = http.createServer(app);
-
-const io = new Server(server, {
-     cors: {
-        origin: '*',
-        method: ['GET', 'POST', 'PUT', 'DELETE']
-     }
-});
-
-
-// socket connection
-io.on("connection",(socket)=>{
-    console.log("User connected");
-
-    roomHandler(socket);
-
-    socket.on("disconnetion",()=>{
-        console.log("User disconnected");
-    })
-
-})
-
-
-const PORT = process.env.PORT||6001;
-mongoose.connect(process.env.MONGO_URL,{
-    useNewUrlParser: true,
-    useUnifiedTopoligy: true
-}).then(()=>{
-
-
-    server.listen(PORT,()=>{
-        console.log(`Running @ ${PORT}`);
-    });
-
-
-}).catch((err)=>{
-    console.log("Error: ",err);
-})
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
